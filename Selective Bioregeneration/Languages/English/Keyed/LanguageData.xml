@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+
+	<SelectiveBioregeneration.DialogTitle>Select one of {0_nameDef}'s conditions</SelectiveBioregeneration.DialogTitle>
+	<SelectiveBioregeneration.NoHediffsToHeal>{0_nameDef}: no curable health conditions found</SelectiveBioregeneration.NoHediffsToHeal>
+	
+	<SelectiveBioregeneration.Part>Part</SelectiveBioregeneration.Part>
+	<SelectiveBioregeneration.HealthCondition>Condition</SelectiveBioregeneration.HealthCondition>
+	<SelectiveBioregeneration.Severity>Severity</SelectiveBioregeneration.Severity>
+	
+</LanguageData>
