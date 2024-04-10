@@ -17,5 +17,6 @@
 	</modDependencies>
 	<loadAfter>
 		<li>ludeon.rimworld.ideology</li>
+		<li>bodilpwnz.animalbiosculpter</li>
 	</loadAfter>
 </ModMetaData>
