@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ModMetaData>
     <name>Selective Bioregeneration</name>
+		<modVersion>1.1</modVersion>
     <author>SamBucher</author>
     <packageId>SamBucher.SelectiveBioregeneration</packageId>
     <description>Selective bioregeneration</description>
@@ -18,5 +19,7 @@
 	<loadAfter>
 		<li>ludeon.rimworld.ideology</li>
 		<li>bodilpwnz.animalbiosculpter</li>
+		<li>spacemoth.drbp</li>
+		<li>risk.rimworld</li>
 	</loadAfter>
 </ModMetaData>

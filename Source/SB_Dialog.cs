@@ -1,4 +1,6 @@
-﻿using RimWorld;
+﻿//#define RIMWORLD_1_4
+
+using RimWorld;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,9 +15,10 @@ namespace Selective_Bioregeneration
     public class SB_Dialog_HediffSelection : Window
     {
         private string DialogTitle;
-        private readonly List<Hediff> Hediffs;
+        private readonly List<Hediff> MaybeHeal;
+        private readonly List<Hediff> WillHeal;
         private Hediff SelectedHediff;
-        private CompBiosculpterPod_TargetedRegenerationCycle Cycle;
+        private CompBiosculpterPod_TargetedHealingCycle Cycle;
 
         private readonly Action/*<Hediff>*/ GiveJobAct;
 
@@ -25,7 +28,7 @@ namespace Selective_Bioregeneration
         private static readonly string[] labels = { "SelectiveBioregeneration.Part", "SelectiveBioregeneration.HealthCondition", "SelectiveBioregeneration.Severity" };
         private static readonly float[] mults = { 2f, 3f, 1f };
 
-        public static void CreateDialog(CompBiosculpterPod_TargetedRegenerationCycle cycle, Pawn pawn, List<Hediff> hediffs, Action/*<Hediff>*/ giveJobAct)
+        public static void CreateDialog(CompBiosculpterPod_TargetedHealingCycle cycle, Pawn pawn, List<Hediff> maybeHeal, List<Hediff> willHeal, Action/*<Hediff>*/ giveJobAct)
         {
             if (pawn == null)
             {
@@ -34,22 +37,23 @@ namespace Selective_Bioregeneration
             }
 
             //var hediffs = pawn?.health?.hediffSet?.hediffs?.FindAll((Hediff hediff) => //IsValidHediff(pawn, hediff));
-            if (hediffs?.Count > 0)
+            if (maybeHeal?.Count > 0)
             {
-                hediffs.SortByDescending((hediff) => HealthCardUtility.GetListPriority(hediff.Part));
-                Find.WindowStack.Add(new SB_Dialog_HediffSelection(cycle, "SelectiveBioregeneration.DialogTitle".Translate(pawn), hediffs, giveJobAct));
+                maybeHeal.SortByDescending((hediff) => HealthCardUtility.GetListPriority(hediff.Part));
+                Find.WindowStack.Add(new SB_Dialog_HediffSelection(cycle, "SelectiveBioregeneration.DialogTitle".Translate(pawn), maybeHeal, willHeal, giveJobAct));
             }
             else
                 Messages.Message("SelectiveBioregeneration.NoHediffsToHeal".Translate(pawn), MessageTypeDefOf.RejectInput, false);
         }
 
-        private SB_Dialog_HediffSelection(CompBiosculpterPod_TargetedRegenerationCycle cycle, string title, List<Hediff> hediffs, Action/*<Hediff>*/ execute)
+        private SB_Dialog_HediffSelection(CompBiosculpterPod_TargetedHealingCycle cycle, string title, List<Hediff> maybeHeal, List<Hediff> willHeal, Action/*<Hediff>*/ execute)
         {
             DialogTitle = title;
 
-            if (!(hediffs?.Count > 0))
-                Log.Error($"{nameof(SB_Dialog_HediffSelection)} created with empty Hediff list (is null: {hediffs == null})");
-            Hediffs = hediffs ?? new List<Hediff>();
+            if (!(maybeHeal?.Count > 0))
+                Log.Error($"{nameof(SB_Dialog_HediffSelection)} created with empty Hediff list (is null: {maybeHeal == null})");
+            MaybeHeal = maybeHeal ?? new List<Hediff>();
+            WillHeal = willHeal ?? new List<Hediff>();
             SelectedHediff = null;
             Cycle = cycle;
 
@@ -97,7 +101,7 @@ namespace Selective_Bioregeneration
 
             var totalHeight = 0f;
             y = 0;
-            foreach (var hediff in Hediffs)
+            foreach (var hediff in MaybeHeal)
             {
                 var hediffHeight = CalcHediffHeight(hediff, width);
                 rect = new Rect(
@@ -111,6 +115,23 @@ namespace Selective_Bioregeneration
 
                 if (RadioButtonHediff(rect, hediff, SelectedHediff == hediff))
                     SelectedHediff = hediff;
+
+                y += hediffHeight + 8f;
+                totalHeight += hediffHeight + 8f;
+            }
+            foreach (var hediff in WillHeal)
+            {
+                var hediffHeight = CalcHediffHeight(hediff, width);
+                rect = new Rect(
+                    10f,
+                    y + 4f,
+                    viewRect.width - 10f,
+                    hediffHeight);
+
+                if (Mouse.IsOver(rect))
+                    Widgets.DrawHighlight(rect);
+
+                NoButtonHediff(rect, hediff);
 
                 y += hediffHeight + 8f;
                 totalHeight += hediffHeight + 8f;
@@ -172,17 +193,74 @@ namespace Selective_Bioregeneration
             if (num && !chosen)
                 SoundDefOf.Tick_Tiny.PlayOneShotOnCamera();
 
+            #if RIMWORLD_1_4
+
             Widgets.RadioButtonDraw(
                 rect.x + rect.width - 24f,
                 rect.y + rect.height / 2f - 12f,
-                chosen);
+                chosen/*, false*/);
             return num;
+
+            #else
+
+            Widgets.RadioButtonDraw(
+                rect.x + rect.width - 24f,
+                rect.y + rect.height / 2f - 12f,
+                chosen, false);
+            return num;
+            
+            #endif
+        }
+
+        private void NoButtonHediff(Rect rect, Hediff hediff)
+        {
+            var oriColor = GUI.color;
+            var pawn = hediff.pawn;
+
+            TextAnchor anchor = Text.Anchor;
+            Text.Anchor = TextAnchor.MiddleLeft;
+            var x = rect.x;
+
+            // Part
+            if (hediff.Part == null)
+                GUI.color = Color.red;
+            else
+                GUI.color = HealthUtility.GetPartConditionLabel(pawn, hediff.Part).second;
+            var width = GetLabelWidth(rect.width, mults[0]);
+            Widgets.Label(
+                new Rect(x, rect.y, width, rect.height),
+                hediff.Part?.LabelCap ?? "WholeBody".Translate());
+            x += width + 4f;
+
+            // Condition
+            GUI.color = hediff.LabelColor;
+            width = GetLabelWidth(rect.width, mults[1]);
+            Widgets.Label(
+                new Rect(x, rect.y, width, rect.height),
+                hediff.LabelCap);
+            x += width + 4f;
+
+            // Severity
+            width = GetLabelWidth(rect.width, mults[2]);
+            Widgets.Label(
+                new Rect(x, rect.y, width, rect.height),
+                hediff.SeverityLabel);
+
+            Text.Anchor = anchor;
+            GUI.color = oriColor;
+
+            //Widgets.ButtonInvisible(rect);
+
+            /*Widgets.RadioButtonDraw(
+                rect.x + rect.width - 24f,
+                rect.y + rect.height / 2f - 12f,
+                false);*/
         }
 
         private float CalcOptionsHeight(float width)
         {
             float height = 0f;
-            foreach (var hediff in Hediffs)
+            foreach (var hediff in MaybeHeal)
                 height += CalcHediffHeight(hediff, width) + 8f;
             return height;
         }

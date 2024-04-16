@@ -8,15 +8,15 @@ using Verse;
 
 namespace Selective_Bioregeneration
 {
-    public class CompBiosculpterPod_TargetedRegenerationCycle : CompBiosculpterPod_RegenerationCycle
+    public abstract class CompBiosculpterPod_TargetedHealingCycle : CompBiosculpterPod_HealingCycle
     {
         public Hediff targetHediff;
 
-        public override void PostExposeData()
+        /*public override void PostExposeData()
         {
             base.PostExposeData();
             Scribe_References.Look(ref targetHediff, "targetHediff");
-        }
+        }*/
 
         public override void CycleCompleted(Pawn pawn)
         {

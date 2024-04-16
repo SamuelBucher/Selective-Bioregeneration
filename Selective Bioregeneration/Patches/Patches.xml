@@ -2,6 +2,13 @@
 <Patch>
 
 	<Operation Class="PatchOperationReplace">
+		<xpath>/Defs/ThingDef[defName="BiosculpterPod"]/comps/li[@Class="CompProperties_BiosculpterPod_HealingCycle" and compClass="CompBiosculpterPod_MedicCycle"]/compClass</xpath>
+		<value>
+			<compClass>Selective_Bioregeneration.CompBiosculpterPod_TargetedMedicCycle</compClass>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationReplace">
 		<xpath>/Defs/ThingDef[defName="BiosculpterPod"]/comps/li[@Class="CompProperties_BiosculpterPod_HealingCycle" and compClass="CompBiosculpterPod_RegenerationCycle"]/compClass</xpath>
 		<value>
 			<compClass>Selective_Bioregeneration.CompBiosculpterPod_TargetedRegenerationCycle</compClass>
