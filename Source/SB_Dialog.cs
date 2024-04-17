@@ -1,4 +1,4 @@
-﻿//#define RIMWORLD_1_4
+﻿#define RIMWORLD_1_4
 
 using RimWorld;
 using System;
@@ -14,16 +14,17 @@ namespace Selective_Bioregeneration
 {
     public class SB_Dialog_HediffSelection : Window
     {
-        private string DialogTitle;
+        private string Title1;
+        private string Title2;
         private readonly List<Hediff> MaybeHeal;
         private readonly List<Hediff> WillHeal;
         private Hediff SelectedHediff;
         private CompBiosculpterPod_TargetedHealingCycle Cycle;
 
-        private readonly Action/*<Hediff>*/ GiveJobAct;
+        private readonly Action GiveJobAct;
 
         private Vector2 scrollPosition = Vector2.zero;
-        public override Vector2 InitialSize => new Vector2(500f, 500f);
+        public override Vector2 InitialSize => new Vector2(550f, 550f);
 
         private static readonly string[] labels = { "SelectiveBioregeneration.Part", "SelectiveBioregeneration.HealthCondition", "SelectiveBioregeneration.Severity" };
         private static readonly float[] mults = { 2f, 3f, 1f };
@@ -36,22 +37,22 @@ namespace Selective_Bioregeneration
                 return;
             }
 
-            //var hediffs = pawn?.health?.hediffSet?.hediffs?.FindAll((Hediff hediff) => //IsValidHediff(pawn, hediff));
-            if (maybeHeal?.Count > 0)
+            if (maybeHeal?.Count > 0 || willHeal?.Count > 0)
             {
                 maybeHeal.SortByDescending((hediff) => HealthCardUtility.GetListPriority(hediff.Part));
-                Find.WindowStack.Add(new SB_Dialog_HediffSelection(cycle, "SelectiveBioregeneration.DialogTitle".Translate(pawn), maybeHeal, willHeal, giveJobAct));
+                Find.WindowStack.Add(new SB_Dialog_HediffSelection(cycle, pawn, maybeHeal, willHeal, giveJobAct));
             }
             else
                 Messages.Message("SelectiveBioregeneration.NoHediffsToHeal".Translate(pawn), MessageTypeDefOf.RejectInput, false);
         }
 
-        private SB_Dialog_HediffSelection(CompBiosculpterPod_TargetedHealingCycle cycle, string title, List<Hediff> maybeHeal, List<Hediff> willHeal, Action/*<Hediff>*/ execute)
+        private SB_Dialog_HediffSelection(CompBiosculpterPod_TargetedHealingCycle cycle, Pawn pawn, List<Hediff> maybeHeal, List<Hediff> willHeal, Action/*<Hediff>*/ execute)
         {
-            DialogTitle = title;
+            Title1 = "SelectiveBioregeneration.DialogTitle1".Translate(pawn);
+            Title2 = "SelectiveBioregeneration.DialogTitle2".Translate();
 
-            if (!(maybeHeal?.Count > 0))
-                Log.Error($"{nameof(SB_Dialog_HediffSelection)} created with empty Hediff list (is null: {maybeHeal == null})");
+            /*if (!(maybeHeal?.Count > 0))
+                Log.Error($"{nameof(SB_Dialog_HediffSelection)} created with empty Hediff list (is null: {maybeHeal == null})");*/
             MaybeHeal = maybeHeal ?? new List<Hediff>();
             WillHeal = willHeal ?? new List<Hediff>();
             SelectedHediff = null;
@@ -71,10 +72,12 @@ namespace Selective_Bioregeneration
 
             float y = inRect.y;
             Text.Font = GameFont.Medium;
-            Widgets.Label(new Rect(0f, y, inRect.width, 42f), DialogTitle);
-            y += 42f;
+            Widgets.Label(new Rect(0f, y, inRect.width, 42f), Title1);
+            y += 28f;
 
             Text.Font = GameFont.Small;
+            Widgets.Label(new Rect(0f, y, inRect.width, 42f), Title2);
+            y += 28f;
 
             float width = inRect.width - 16f;
             float dialogTextHeight = Text.CalcHeight("foo", width);
@@ -141,11 +144,12 @@ namespace Selective_Bioregeneration
             if (Widgets.ButtonText(new Rect(0f, inRect.height - 35f, inRect.width / 2f - 20f, 35f), "CancelButton".Translate(), doMouseoverSound: false))
                 Close();
 
-            if (SelectedHediff != null
+            if ((SelectedHediff != null || MaybeHeal?.Count == 0)
                 && Widgets.ButtonText(new Rect(inRect.width / 2f + 20f, inRect.height - 35f, inRect.width / 2f - 20f, 35f), "Confirm".Translate(), doMouseoverSound: false))
             {
                 Close();
-                Cycle.targetHediff = SelectedHediff;
+                if (SelectedHediff != null)
+                    Cycle.targetHediff = SelectedHediff;
                 GiveJobAct.Invoke();
             }
 
@@ -198,7 +202,7 @@ namespace Selective_Bioregeneration
             Widgets.RadioButtonDraw(
                 rect.x + rect.width - 24f,
                 rect.y + rect.height / 2f - 12f,
-                chosen/*, false*/);
+                chosen);
             return num;
 
             #else
@@ -248,19 +252,14 @@ namespace Selective_Bioregeneration
 
             Text.Anchor = anchor;
             GUI.color = oriColor;
-
-            //Widgets.ButtonInvisible(rect);
-
-            /*Widgets.RadioButtonDraw(
-                rect.x + rect.width - 24f,
-                rect.y + rect.height / 2f - 12f,
-                false);*/
         }
 
         private float CalcOptionsHeight(float width)
         {
             float height = 0f;
             foreach (var hediff in MaybeHeal)
+                height += CalcHediffHeight(hediff, width) + 8f;
+            foreach (var hediff in WillHeal)
                 height += CalcHediffHeight(hediff, width) + 8f;
             return height;
         }

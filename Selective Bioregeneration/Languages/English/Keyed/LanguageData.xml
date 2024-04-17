@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <LanguageData>
 
-	<SelectiveBioregeneration.DialogTitle>Select one of {0_nameDef}'s conditions</SelectiveBioregeneration.DialogTitle>
+	<SelectiveBioregeneration.DialogTitle1>Select one of {0_nameDef}'s condition to heal:</SelectiveBioregeneration.DialogTitle1>
+  <SelectiveBioregeneration.DialogTitle2>(non-selectable conditions will all be healed)</SelectiveBioregeneration.DialogTitle2>
+  <SelectiveBioregeneration.OneHeal>One of these conditions will be healed:</SelectiveBioregeneration.OneHeal>
+  <SelectiveBioregeneration.AllHeal>All of these conditions will be healed:</SelectiveBioregeneration.AllHeal>
 	<SelectiveBioregeneration.NoHediffsToHeal>{0_nameDef}: no curable health conditions found</SelectiveBioregeneration.NoHediffsToHeal>
 	
 	<SelectiveBioregeneration.Part>Part</SelectiveBioregeneration.Part>
