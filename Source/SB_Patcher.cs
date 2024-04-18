@@ -41,12 +41,12 @@ namespace Selective_Bioregeneration
             [HarmonyPrefix]
             public static bool OrderToPod_Prefix(ref CompBiosculpterPod_Cycle cycle, ref Pawn pawn, ref Action giveJobAct)
             {
-                if ((cycle is CompBiosculpterPod_TargetedHealingCycle))
+                if (cycle is CompBiosculpterPod_HealingCycle healingCycle && healingCycle is ITargetedHealingCycle targetedHealingCycle)
                 {
                     List<Hediff> maybeHeal = new List<Hediff>();
                     foreach (Hediff hediff in pawn.health.hediffSet.hediffs)
                     {
-                        if ((cycle as CompBiosculpterPod_HealingCycle).CanPotentiallyHeal(pawn, hediff))
+                        if (healingCycle.CanPotentiallyHeal(pawn, hediff))
                         {
                             maybeHeal.Add(hediff);
                         }
@@ -54,18 +54,17 @@ namespace Selective_Bioregeneration
                     List<Hediff> willHeal = new List<Hediff>();
                     foreach (Hediff hediff in pawn.health.hediffSet.hediffs)
                     {
-                        if ((cycle as CompBiosculpterPod_HealingCycle).WillHeal(pawn, hediff))
+                        if (healingCycle.WillHeal(pawn, hediff))
                         {
                             willHeal.Add(hediff);
                         }
                     }
-                    SB_Dialog_HediffSelection.CreateDialog(cycle as CompBiosculpterPod_TargetedHealingCycle, pawn, maybeHeal, willHeal, giveJobAct);
+                    SB_Dialog_HediffSelection.CreateDialog(targetedHealingCycle, pawn, maybeHeal, willHeal, giveJobAct);
                 }
                 else
                 {
                     giveJobAct();
                 }
-
                 return false;
             }
         }

@@ -1,4 +1,4 @@
-﻿#define RIMWORLD_1_4
+﻿//#define RIMWORLD_1_4
 
 using RimWorld;
 using System;
@@ -14,12 +14,12 @@ namespace Selective_Bioregeneration
 {
     public class SB_Dialog_HediffSelection : Window
     {
-        private string Title1;
-        private string Title2;
+        private readonly string Title1;
+        private readonly string Title2;
         private readonly List<Hediff> MaybeHeal;
         private readonly List<Hediff> WillHeal;
         private Hediff SelectedHediff;
-        private CompBiosculpterPod_TargetedHealingCycle Cycle;
+        private readonly ITargetedHealingCycle Cycle;
 
         private readonly Action GiveJobAct;
 
@@ -29,7 +29,7 @@ namespace Selective_Bioregeneration
         private static readonly string[] labels = { "SelectiveBioregeneration.Part", "SelectiveBioregeneration.HealthCondition", "SelectiveBioregeneration.Severity" };
         private static readonly float[] mults = { 2f, 3f, 1f };
 
-        public static void CreateDialog(CompBiosculpterPod_TargetedHealingCycle cycle, Pawn pawn, List<Hediff> maybeHeal, List<Hediff> willHeal, Action/*<Hediff>*/ giveJobAct)
+        public static void CreateDialog(ITargetedHealingCycle cycle, Pawn pawn, List<Hediff> maybeHeal, List<Hediff> willHeal, Action/*<Hediff>*/ giveJobAct)
         {
             if (pawn == null)
             {
@@ -46,7 +46,7 @@ namespace Selective_Bioregeneration
                 Messages.Message("SelectiveBioregeneration.NoHediffsToHeal".Translate(pawn), MessageTypeDefOf.RejectInput, false);
         }
 
-        private SB_Dialog_HediffSelection(CompBiosculpterPod_TargetedHealingCycle cycle, Pawn pawn, List<Hediff> maybeHeal, List<Hediff> willHeal, Action/*<Hediff>*/ execute)
+        private SB_Dialog_HediffSelection(ITargetedHealingCycle cycle, Pawn pawn, List<Hediff> maybeHeal, List<Hediff> willHeal, Action/*<Hediff>*/ execute)
         {
             Title1 = "SelectiveBioregeneration.DialogTitle1".Translate(pawn);
             Title2 = "SelectiveBioregeneration.DialogTitle2".Translate();
@@ -149,7 +149,7 @@ namespace Selective_Bioregeneration
             {
                 Close();
                 if (SelectedHediff != null)
-                    Cycle.targetHediff = SelectedHediff;
+                    Cycle.TargetHediff = SelectedHediff;
                 GiveJobAct.Invoke();
             }
 
