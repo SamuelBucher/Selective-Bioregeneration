@@ -40,7 +40,7 @@
   <ItemGroup>
     <Compile Include="CompBiosculpterPod_TargetedRegenerationCycle.cs" />
     <Compile Include="CompBiosculpterPod_TargetedMedicCycle.cs" />
-    <Compile Include="CompBiosculpterPod_TargetedHealingCycle.cs" />
+    <Compile Include="SB_Utility.cs" />
     <Compile Include="SB_Dialog.cs" />
     <Compile Include="SB_Patcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -52,7 +52,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Krafs.Rimworld.Ref">
-      <Version>1.4.3901</Version>
+      <Version>1.5.4066</Version>
     </PackageReference>
     <PackageReference Include="Lib.Harmony" ExcludeAssets="runtime">
       <Version>2.3.3</Version>
