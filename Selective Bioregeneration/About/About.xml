@@ -21,7 +21,4 @@
 		<li>bodilpwnz.animalbiosculpter</li>
 		<li>spacemoth.drbp</li>
 	</loadAfter>
-  <incompatibleWith>
-    <li>syrus.bpansvariations</li>
-  </incompatibleWith>
 </ModMetaData>
