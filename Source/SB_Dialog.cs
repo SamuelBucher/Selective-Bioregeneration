@@ -1,4 +1,4 @@
-﻿//#define RIMWORLD_1_4
+﻿#define RIMWORLD_1_4
 
 using RimWorld;
 using System;
